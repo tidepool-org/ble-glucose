@@ -4,10 +4,25 @@
   "description": "Reads blood glucose values from Bluetooth LE enabled meters",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --cache --format=node_modules/eslint-formatter-pretty ."
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tidepool-org/ble-glucose.git"
+  },
+  "keywords": [
+    "glucose",
+    "bluetooth smart",
+    "bluetooth low energy",
+    "BLE"
+  ],
   "author": "Gerrit Niezen",
   "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/tidepool-org/ble-glucose/issues"
+  },
+  "homepage": "https://github.com/tidepool-org/ble-glucose#readme",
   "devDependencies": {
     "eslint": "5.16.0",
     "eslint-config-airbnb": "16.1.0",

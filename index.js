@@ -22,7 +22,8 @@ const sundial = require('sundial');
 
 const options = {
   filters: [{
-    services: ['glucose', 'device_information'],
+    services: ['glucose'],
+    optionalServices: ['device_information'],
   }],
 };
 
