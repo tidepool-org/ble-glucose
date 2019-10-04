@@ -186,6 +186,7 @@ class bluetoothLE extends EventEmitter {
       flags: result.getUint8(0),
       seqNum: result.getUint16(1, true),
     };
+    let offset = 0;
 
     const dateTime = {
       year: result.getUint16(3, true),
@@ -205,6 +206,7 @@ class bluetoothLE extends EventEmitter {
         record.payload.internalTime,
         record.payload.timeOffset,
       );
+      offset += 2;
     } else {
       record.timestamp = sundial.buildTimestamp(dateTime);
     }
@@ -215,11 +217,11 @@ class bluetoothLE extends EventEmitter {
       } else {
         record.units = 'mg/dL';
       }
-      record.value = this.getSFLOAT(result.getUint16(12, true), record.units);
-      record.info = result.getUint8(14);
+      record.value = this.getSFLOAT(result.getUint16(offset + 10, true), record.units);
+      record.info = result.getUint8(offset + 12);
 
       if (this.hasFlag(FLAGS.STATUS_PRESENT, record.flags)) {
-        record.status = result.getUint16(15, true);
+        record.status = result.getUint16(offset + 13, true);
       }
     } else {
       console.log('No glucose value present for ', sundial.formatDeviceTime(record.timestamp));
