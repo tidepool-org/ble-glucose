@@ -146,7 +146,7 @@ class bluetoothLE extends EventEmitter {
     const { value } = event.target;
 
     console.log("EVENT:", event);
-    console.log("VALUE:", bluetoothLE.bytes2hex(value));
+    console.log("VALUE:", bluetoothLE.buf2hex(value));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
     self.records.push(this.parsed);
   }
@@ -265,23 +265,10 @@ class bluetoothLE extends EventEmitter {
     return false;
   }
 
-  static padHex(value) {
-    return (`00${value.toString(16).toUpperCase()}`).slice(-2);
-  }
-
-  static bytes2hex(bytes, noGaps) {
-    let message = '';
-    for (let i = 0; i < bytes.length; i += 1) {
-      const hex = bytes[i].toString(16).toUpperCase();
-      if (hex.length === 1) {
-        message += '0';
-      }
-      message += hex;
-      if (!noGaps) {
-        message += ' ';
-      }
-    }
-    return message;
+  static buf2hex(buffer) {
+    return Array.from(new Uint8Array(buffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
   }
 }
 
