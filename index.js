@@ -23,8 +23,8 @@ const sundial = require('sundial');
 const options = {
   filters: [{
     services: ['glucose'],
-    optionalServices: ['device_information'],
   }],
+  optionalServices: ['device_information'],
 };
 
 const FLAGS = {
@@ -65,8 +65,8 @@ class bluetoothLE extends EventEmitter {
       this.server = await this.device.gatt.connect();
       console.log('Connected.');
 
-      this.glucoseService = await this.server.getPrimaryService('glucose');
       this.deviceInfoService = await this.server.getPrimaryService('device_information');
+      this.glucoseService = await this.server.getPrimaryService('glucose');
       console.log('Retrieved services.');
 
       const glucoseFeature = await this.glucoseService.getCharacteristic('glucose_feature');
@@ -87,6 +87,7 @@ class bluetoothLE extends EventEmitter {
       console.log('Event listeners added.');
     } catch (error) {
       console.log(`Argh! ${error}`);
+      throw error;
     }
   }
 
@@ -145,6 +146,7 @@ class bluetoothLE extends EventEmitter {
     const { value } = event.target;
 
     console.log("EVENT:", event);
+    console.log("VALUE:", bluetoothLE.bytes2hex(value));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
     self.records.push(this.parsed);
   }
@@ -265,6 +267,21 @@ class bluetoothLE extends EventEmitter {
 
   static padHex(value) {
     return (`00${value.toString(16).toUpperCase()}`).slice(-2);
+  }
+
+  static bytes2hex(bytes, noGaps) {
+    let message = '';
+    for (let i = 0; i < bytes.length; i += 1) {
+      const hex = bytes[i].toString(16).toUpperCase();
+      if (hex.length === 1) {
+        message += '0';
+      }
+      message += hex;
+      if (!noGaps) {
+        message += ' ';
+      }
+    }
+    return message;
   }
 }
 
