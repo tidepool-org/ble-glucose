@@ -146,7 +146,7 @@ class bluetoothLE extends EventEmitter {
     const { value } = event.target;
 
     console.log("EVENT:", event);
-    console.log("VALUE:", bluetoothLE.buf2hex(value));
+    console.log("VALUE:", bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
     self.records.push(this.parsed);
   }
@@ -188,13 +188,20 @@ class bluetoothLE extends EventEmitter {
       hours: result.getUint8(7),
       minutes: result.getUint8(8),
       seconds: result.getUint8(9),
-      timeOffset: result.getInt16(10, true),
     };
 
-    record.timestamp = sundial.applyOffset(
-      sundial.buildTimestamp(dateTime),
-      dateTime.timeOffset,
-    );
+    if (this.hasFlag(FLAGS.TIME_OFFSET_PRESENT, record.flags)) {
+      record.payload = {
+        internalTime: sundial.buildTimestamp(dateTime),
+        timeOffset: result.getInt16(10, true),
+      };
+      record.timestamp = sundial.applyOffset(
+        record.payload.internalTime,
+        record.payload.timeOffset,
+      );
+    } else {
+      record.timestamp = sundial.buildTimestamp(dateTime);
+    }
 
     if (this.hasFlag(FLAGS.GLUCOSE_PRESENT, record.flags)) {
       if (this.hasFlag(FLAGS.IS_MMOL, record.flags)) {
@@ -208,9 +215,10 @@ class bluetoothLE extends EventEmitter {
       if (this.hasFlag(FLAGS.STATUS_PRESENT, record.flags)) {
         record.status = result.getUint16(15, true);
       }
+    } else {
+      console.log('No glucose value present for ', sundial.formatDeviceTime(record.timestamp));
     }
 
-    console.log('No glucose value present for ', sundial.formatDeviceTime(record.timestamp));
     return record;
   }
 
@@ -268,7 +276,7 @@ class bluetoothLE extends EventEmitter {
   static buf2hex(buffer) {
     return Array.from(new Uint8Array(buffer))
       .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+      .join(' ');
   }
 }
 
