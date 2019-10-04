@@ -81,7 +81,7 @@ class bluetoothLE extends EventEmitter {
       await this.racp.startNotifications();
       console.log('Notifications started.');
 
-      this.glucoseMeasurementContext.addEventListener('characteristicvaluechanged', this.handleNotifications);
+      this.glucoseMeasurementContext.addEventListener('characteristicvaluechanged', bluetoothLE.handleContextNotifications);
       this.glucoseMeasurement.addEventListener('characteristicvaluechanged', this.handleNotifications);
       this.racp.addEventListener('characteristicvaluechanged', this.handleRACP);
       console.log('Event listeners added.');
@@ -140,6 +140,12 @@ class bluetoothLE extends EventEmitter {
   async getAllRecords() {
     self.records = [];
     await this.sendCommand([0x01, 0x01]);
+  }
+
+  static handleContextNotifications(event) {
+    const { value } = event.target;
+    console.log("CONTEXT EVENT:", event);
+    console.log("VALUE:", bluetoothLE.buf2hex(value.buffer));
   }
 
   handleNotifications(event) {
