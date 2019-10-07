@@ -66,7 +66,7 @@ class bluetoothLE extends EventEmitter {
     }
   }
 
-  async connectTimeout(timeout) {
+  async connectTimeout(timeout = 40000) {
     await Promise.race([
       this.connect(),
       bluetoothLE.timeout(timeout),
