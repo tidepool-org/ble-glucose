@@ -66,6 +66,16 @@ class bluetoothLE extends EventEmitter {
     }
   }
 
+  async connectTimeout(timeout) {
+    await Promise.race([
+      this.connect(),
+      bluetoothLE.timeout(timeout),
+    ]).catch((err) => {
+      console.log('Error:', err);
+      throw err;
+    });
+  }
+
   async connect() {
     try {
       this.server = await this.device.gatt.connect();
