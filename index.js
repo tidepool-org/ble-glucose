@@ -38,11 +38,14 @@ const FLAGS = {
 let self = null;
 
 class bluetoothLE extends EventEmitter {
-  constructor(opts) {
+  constructor() {
     super();
-    console.log('bluetoothLE options:', opts);
     this.records = [];
     self = this; // so that we can access it from event handler
+  }
+
+  static timeout(delay) {
+    return new Promise((resolve, reject) => setTimeout(reject, delay, new Error('Timeout error')));
   }
 
   async scan() {
@@ -50,7 +53,10 @@ class bluetoothLE extends EventEmitter {
     console.log(`with  ${JSON.stringify(options)}`);
 
     if (typeof navigator !== 'undefined') {
-      this.device = await navigator.bluetooth.requestDevice(options);
+      this.device = await Promise.race([
+        bluetoothLE.timeout(5000),
+        navigator.bluetooth.requestDevice(options),
+      ]);
 
       console.log(`Name: ${this.device.name}`);
       console.log(`Id: ${this.device.id}`);
