@@ -54,7 +54,7 @@ class bluetoothLE extends EventEmitter {
 
     if (typeof navigator !== 'undefined') {
       this.device = await Promise.race([
-        bluetoothLE.timeout(5000),
+        bluetoothLE.timeout(15000),
         navigator.bluetooth.requestDevice(options),
       ]);
 
