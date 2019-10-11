@@ -234,7 +234,8 @@ class bluetoothLE extends EventEmitter {
         record.units = 'mg/dL';
       }
       record.value = this.getSFLOAT(result.getUint16(offset + 10, true), record.units);
-      record.info = result.getUint8(offset + 12);
+      record.type = result.getUint8(offset + 12) >> 4;
+      record.location = result.getUint8(offset + 12) && 0x0F;
 
       if (this.hasFlag(FLAGS.STATUS_PRESENT, record.flags)) {
         record.status = result.getUint16(offset + 13, true);
