@@ -160,15 +160,13 @@ class bluetoothLE extends EventEmitter {
 
   static handleContextNotifications(event) {
     const { value } = event.target;
-    console.log("CONTEXT EVENT:", event);
-    console.log("VALUE:", bluetoothLE.buf2hex(value.buffer));
+    console.log('Received context:', bluetoothLE.buf2hex(value.buffer));
   }
 
   handleNotifications(event) {
     const { value } = event.target;
 
-    console.log("EVENT:", event);
-    console.log("VALUE:", bluetoothLE.buf2hex(value.buffer));
+    console.log('Received:', bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
     self.records.push(this.parsed);
   }
@@ -180,7 +178,7 @@ class bluetoothLE extends EventEmitter {
       operator: value.getUint8(1),
       operand: value.getUint16(2, true),
     };
-    console.log("RACP EVENT:", this.racpObject);
+    console.log('RACP Event:', this.racpObject);
 
     switch (this.racpObject.opCode) {
       case 0x05:
