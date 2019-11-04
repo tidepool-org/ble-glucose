@@ -87,7 +87,7 @@ class bluetoothLE extends EventEmitter {
 
       const glucoseFeature = await this.glucoseService.getCharacteristic('glucose_feature');
       const features = await glucoseFeature.readValue();
-      console.log('Glucose features:', features.getUint16().toString(2).padStart(8, '0'));
+      console.log('Glucose features:', features.getUint16().toString(2).padStart(16, '0'));
 
       this.glucoseMeasurement = await this.glucoseService.getCharacteristic('glucose_measurement');
       await this.glucoseMeasurement.startNotifications();
@@ -246,21 +246,20 @@ class bluetoothLE extends EventEmitter {
   }
 
   static getSFLOAT(value, units) {
-    const SFLOAT = {
-      POSITIVE_INFINITY: 0x07FE,
-      NAN: 0x07FF,
-      NRES: 0x0800,
-      RESERVED_VALUE: 0x0801,
-      NEGATIVE_INFINITY: 0x0802,
-    };
-
-    const RESERVED_FLOAT_VALUES = [
-      Number.POSITIVE_INFINITY,
-      NaN,
-      NaN,
-      NaN,
-      Number.NEGATIVE_INFINITY,
-    ];
+    switch (value) {
+      case 0x07FF:
+        return NaN;
+      case 0x0800:
+        return NaN;
+      case 0x07FE:
+        return Number.POSITIVE_INFINITY;
+      case 0x0802:
+        return Number.NEGATIVE_INFINITY;
+      case 0x0801:
+        return NaN;
+      default:
+        break;
+    }
 
     let exponent = value >> 12;
     let mantissa = value & 0x0FFF;
@@ -277,12 +276,7 @@ class bluetoothLE extends EventEmitter {
       throw Error('Illegal units for glucose value');
     }
 
-    if (mantissa >= SFLOAT.POSITIVE_INFINITY &&
-        mantissa <= SFLOAT.NEGATIVE_INFINITY) {
-      return RESERVED_FLOAT_VALUES[mantissa - SFLOAT.POSITIVE_INFINITY];
-    }
-
-    if (mantissa >= SFLOAT.NRES) {
+    if (mantissa >= 0x0800) {
       mantissa = -((0x0FFF + 1) - mantissa);
     }
 
