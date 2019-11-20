@@ -206,6 +206,9 @@ class bluetoothLE extends EventEmitter {
         if (this.racpObject.operand === 0x0101) {
           console.log('Success.');
           self.emit('data', self.records);
+        } else if (this.racpObject.operand === 0x0601) {
+          // no records found
+          self.emit('data', []);
         }
         break;
       default:
