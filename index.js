@@ -107,10 +107,26 @@ class bluetoothLE extends EventEmitter {
     }
   }
 
-  disconnect() {
+  async disconnect() {
     if (!this.device) {
       return;
     }
+    console.log('Stopping notifications and removing event listeners...');
+    if (this.glucoseMeasurement) {
+      await this.glucoseMeasurement.stopNotifications();
+      await this.glucoseMeasurement.removeEventListener(
+        'characteristicvaluechanged',
+        this.handleNotifications,
+      );
+    }
+    if (this.racp) {
+      await this.racp.stopNotifications();
+      await this.racp.removeEventListener(
+        'characteristicvaluechanged',
+        this.handleNotifications,
+      );
+    }
+    console.log('Notifications and event listeners stopped.');
     console.log('Disconnecting from Bluetooth Device...');
     if (this.device.gatt.connected) {
       this.device.gatt.disconnect();
