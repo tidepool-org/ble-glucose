@@ -118,6 +118,7 @@ class bluetoothLE extends EventEmitter {
         'characteristicvaluechanged',
         this.handleNotifications,
       );
+      this.glucoseMeasurement = null;
     }
     if (this.racp) {
       await this.racp.stopNotifications();
@@ -125,6 +126,7 @@ class bluetoothLE extends EventEmitter {
         'characteristicvaluechanged',
         this.handleNotifications,
       );
+      this.racp = null;
     }
     console.log('Notifications and event listeners stopped.');
     console.log('Disconnecting from Bluetooth Device...');
