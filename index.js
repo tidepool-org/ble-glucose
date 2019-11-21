@@ -114,7 +114,7 @@ class bluetoothLE extends EventEmitter {
     console.log('Stopping notifications and removing event listeners...');
     if (this.glucoseMeasurement) {
       await this.glucoseMeasurement.stopNotifications();
-      await this.glucoseMeasurement.removeEventListener(
+      this.glucoseMeasurement.removeEventListener(
         'characteristicvaluechanged',
         this.handleNotifications,
       );
@@ -122,9 +122,9 @@ class bluetoothLE extends EventEmitter {
     }
     if (this.racp) {
       await this.racp.stopNotifications();
-      await this.racp.removeEventListener(
+      this.racp.removeEventListener(
         'characteristicvaluechanged',
-        this.handleNotifications,
+        this.handleRACP,
       );
       this.racp = null;
     }
