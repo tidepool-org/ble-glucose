@@ -107,10 +107,28 @@ class bluetoothLE extends EventEmitter {
     }
   }
 
-  disconnect() {
+  async disconnect() {
     if (!this.device) {
       return;
     }
+    console.log('Stopping notifications and removing event listeners...');
+    if (this.glucoseMeasurement) {
+      await this.glucoseMeasurement.stopNotifications();
+      this.glucoseMeasurement.removeEventListener(
+        'characteristicvaluechanged',
+        this.handleNotifications,
+      );
+      this.glucoseMeasurement = null;
+    }
+    if (this.racp) {
+      await this.racp.stopNotifications();
+      this.racp.removeEventListener(
+        'characteristicvaluechanged',
+        this.handleRACP,
+      );
+      this.racp = null;
+    }
+    console.log('Notifications and event listeners stopped.');
     console.log('Disconnecting from Bluetooth Device...');
     if (this.device.gatt.connected) {
       this.device.gatt.disconnect();
@@ -188,6 +206,9 @@ class bluetoothLE extends EventEmitter {
         if (this.racpObject.operand === 0x0101) {
           console.log('Success.');
           self.emit('data', self.records);
+        } else if (this.racpObject.operand === 0x0601) {
+          // no records found
+          self.emit('data', []);
         }
         break;
       default:
