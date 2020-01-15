@@ -35,12 +35,24 @@ const FLAGS = {
   CONTEXT_INFO: { value: 0x10, name: 'Context information follows' },
 };
 
+const CONTEXT_FLAGS = {
+  CARBS: { value: 0x01, name: 'Carbohydrate ID and Carbohydrate present' },
+  MEAL: { value: 0x02, name: 'Meal present' },
+  TESTER_HEALTH: { value: 0x04, name: 'Tester-Health present' },
+  EXERCISE: { value: 0x08, name: 'Exercise Duration and Exercise Intensity present' },
+  MEDICATION: { value: 0x10, name: 'Medication ID and Medication present' },
+  UNITS: { value: 0x20, name: 'Medication value units' },
+  HBA1C: { value: 0x40, name: 'HbA1c present' },
+  EXTENDED: { value: 0x80, name: 'Extended flags present' },
+};
+
 let self = null;
 
 class bluetoothLE extends EventEmitter {
   constructor() {
     super();
     this.records = [];
+    this.contextRecords = [];
     self = this; // so that we can access it from event handler
   }
 
@@ -120,6 +132,14 @@ class bluetoothLE extends EventEmitter {
       );
       this.glucoseMeasurement = null;
     }
+    if (this.glucoseMeasurementContext) {
+      await this.glucoseMeasurementContext.stopNotifications();
+      this.glucoseMeasurementContext.removeEventListener(
+        'characteristicvaluechanged',
+        this.handleContextNotifications,
+      );
+      this.glucoseMeasurementContext = null;
+    }
     if (this.racp) {
       await this.racp.stopNotifications();
       this.racp.removeEventListener(
@@ -173,12 +193,15 @@ class bluetoothLE extends EventEmitter {
 
   async getAllRecords() {
     self.records = [];
+    self.contextRecords = [];
     await this.sendCommand([0x01, 0x01]);
   }
 
   static handleContextNotifications(event) {
     const { value } = event.target;
     console.log('Received context:', bluetoothLE.buf2hex(value.buffer));
+    this.parsed = bluetoothLE.parseMeasurementContext(value);
+    self.contextRecords.push(this.parsed);
   }
 
   handleNotifications(event) {
@@ -205,7 +228,10 @@ class bluetoothLE extends EventEmitter {
       case 0x06:
         if (this.racpObject.operand === 0x0101) {
           console.log('Success.');
-          self.emit('data', self.records);
+          self.emit('data', {
+            records: self.records,
+            contextRecords: self.contextRecords,
+          });
         } else if (this.racpObject.operand === 0x0601) {
           // no records found
           self.emit('data', []);
@@ -214,6 +240,32 @@ class bluetoothLE extends EventEmitter {
       default:
         throw Error('Unrecognized op code');
     }
+  }
+
+  static parseMeasurementContext(result) {
+    const record = {
+      flags: result.getUint8(0),
+      seqNum: result.getUint16(1, true),
+    };
+    let offset = 3;
+
+    if (this.hasFlag(CONTEXT_FLAGS.EXTENDED, record.flags)) {
+      record.extended = result.getUint8(offset);
+      offset += 1;
+    }
+
+    if (this.hasFlag(CONTEXT_FLAGS.CARBS, record.flags)) {
+      record.carbID = result.getUint8(offset);
+      record.carbUnits = result.getUint16(offset + 1, true);
+      offset += 2;
+    }
+
+    if (this.hasFlag(CONTEXT_FLAGS.MEAL, record.flags)) {
+      record.meal = result.getUint8(offset);
+      offset += 1;
+    }
+
+    return record;
   }
 
   static parseGlucoseMeasurement(result) {
@@ -262,6 +314,8 @@ class bluetoothLE extends EventEmitter {
     } else {
       console.log('No glucose value present for ', sundial.formatDeviceTime(record.timestamp));
     }
+
+    record.hasContext = this.hasFlag(FLAGS.CONTEXT_INFO, record.flags);
 
     return record;
   }
