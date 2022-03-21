@@ -43,6 +43,11 @@ ajv@^6.10.0, ajv@^6.10.2:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
+andlog@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/andlog/-/andlog-1.0.2.tgz#0e77a44f62a782be3a78a7527beb5761c183f044"
+  integrity sha512-ne6ibcbv3wqZHzbXarG7NfOpU2ai5ao6429ocq1betBBDDx7KE7R6k0IIeaT29JNko0lA88yVzHRRuxX2wpkHQ==
+
 ansi-escapes@^4.2.1:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-4.3.0.tgz#a4ce2b33d6b214b7950d8595c212f12ac9cc569d"
@@ -99,6 +104,13 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
+
+bows@^1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/bows/-/bows-1.7.2.tgz#4deb95d5b78049794cce925a869155b722d2d516"
+  integrity sha512-AeIQNXbTstXOPjIBol9oTnaaO/2ByuExio0AEIx8vqOIJnAAWFfbWWzh7YPiSKYAxJNTjcy+J+xH2jCRb460Yw==
+  dependencies:
+    andlog "^1.0.2"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -707,6 +719,11 @@ is-date-object@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/is-date-object/-/is-date-object-1.0.1.tgz#9aa20eb6aeebbff77fbd33e74ca01b33581d3a16"
   integrity sha1-mqIOtq7rv/d/vTPnTKAbM1gdOhY=
+
+is-electron@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/is-electron/-/is-electron-2.2.1.tgz#751b1dd8a74907422faa5c35aaa0cf66d98086e9"
+  integrity sha512-r8EEQQsqT+Gn0aXFx7lTFygYQhILLCB+wn0WCDL5LZRINeLH/Rvw1j2oKodELLXYNImQ3CRlVsY8wW4cGOsyuw==
 
 is-extglob@^2.1.1:
   version "2.1.1"

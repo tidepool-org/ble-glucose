@@ -16,9 +16,19 @@
 */
 
 /* global navigator, BluetoothUUID */
+/* eslint-disable global-require, no-global-assign */
 
-const EventEmitter = require('events');
-const sundial = require('sundial');
+import sundial from 'sundial';
+import isElectron from 'is-electron';
+import bows from 'bows';
+
+const isBrowser = typeof window !== 'undefined';
+const debug = isElectron() ? bows('ble-glucose') : console.log;
+
+if (isElectron() || !isBrowser) {
+  // For Node.js and Electron
+  EventTarget = require('events');
+}
 
 const options = {
   filters: [{
@@ -48,7 +58,7 @@ const CONTEXT_FLAGS = {
 
 let self = null;
 
-class bluetoothLE extends EventEmitter {
+class bluetoothLE extends EventTarget {
   constructor() {
     super();
     this.records = [];
@@ -61,8 +71,8 @@ class bluetoothLE extends EventEmitter {
   }
 
   async scan() {
-    console.log('Requesting Bluetooth Device...');
-    console.log(`with  ${JSON.stringify(options)}`);
+    debug('Requesting Bluetooth Device...');
+    debug(`with  ${JSON.stringify(options)}`);
 
     if (typeof navigator !== 'undefined') {
       this.device = await Promise.race([
@@ -70,9 +80,9 @@ class bluetoothLE extends EventEmitter {
         navigator.bluetooth.requestDevice(options),
       ]);
 
-      console.log(`Name: ${this.device.name}`);
-      console.log(`Id: ${this.device.id}`);
-      console.log(`Connected: ${this.device.gatt.connected}`);
+      debug(`Name: ${this.device.name}`);
+      debug(`Id: ${this.device.id}`);
+      debug(`Connected: ${this.device.gatt.connected}`);
     } else {
       throw new Error('navigator not available.');
     }
@@ -83,7 +93,7 @@ class bluetoothLE extends EventEmitter {
       this.connect(),
       bluetoothLE.timeout(timeout),
     ]).catch((err) => {
-      console.log('Error:', err);
+      debug('Error:', err);
       throw err;
     });
   }
@@ -91,15 +101,15 @@ class bluetoothLE extends EventEmitter {
   async connect() {
     try {
       this.server = await this.device.gatt.connect();
-      console.log('Connected.');
+      debug('Connected.');
 
       this.deviceInfoService = await this.server.getPrimaryService('device_information');
       this.glucoseService = await this.server.getPrimaryService('glucose');
-      console.log('Retrieved services.');
+      debug('Retrieved services.');
 
       const glucoseFeature = await this.glucoseService.getCharacteristic('glucose_feature');
       const features = await glucoseFeature.readValue();
-      console.log('Glucose features:', features.getUint16().toString(2).padStart(16, '0'));
+      debug('Glucose features:', features.getUint16().toString(2).padStart(16, '0'));
 
       this.glucoseMeasurement = await this.glucoseService.getCharacteristic('glucose_measurement');
       await this.glucoseMeasurement.startNotifications();
@@ -107,14 +117,14 @@ class bluetoothLE extends EventEmitter {
       await this.glucoseMeasurementContext.startNotifications();
       this.racp = await this.glucoseService.getCharacteristic('record_access_control_point');
       await this.racp.startNotifications();
-      console.log('Notifications started.');
+      debug('Notifications started.');
 
       this.glucoseMeasurementContext.addEventListener('characteristicvaluechanged', bluetoothLE.handleContextNotifications);
       this.glucoseMeasurement.addEventListener('characteristicvaluechanged', this.handleNotifications);
       this.racp.addEventListener('characteristicvaluechanged', this.handleRACP);
-      console.log('Event listeners added.');
+      debug('Event listeners added.');
     } catch (error) {
-      console.log(`Argh! ${error}`);
+      debug(`Argh! ${error}`);
       throw error;
     }
   }
@@ -123,48 +133,53 @@ class bluetoothLE extends EventEmitter {
     if (!this.device) {
       return;
     }
-    console.log('Stopping notifications and removing event listeners...');
-    if (this.glucoseMeasurement) {
+    debug('Stopping notifications and removing event listeners...');
+    try {
       await this.glucoseMeasurement.stopNotifications();
       this.glucoseMeasurement.removeEventListener(
         'characteristicvaluechanged',
         this.handleNotifications,
       );
       this.glucoseMeasurement = null;
+    } catch (err) {
+      debug('Could not stop glucose measurement');
     }
-    if (this.glucoseMeasurementContext) {
+    try {
       await this.glucoseMeasurementContext.stopNotifications();
       this.glucoseMeasurementContext.removeEventListener(
         'characteristicvaluechanged',
         this.handleContextNotifications,
       );
       this.glucoseMeasurementContext = null;
+    } catch (err) {
+      debug('Could not stop glucose measurement context');
     }
-    if (this.racp) {
+    try {
       await this.racp.stopNotifications();
       this.racp.removeEventListener(
         'characteristicvaluechanged',
         this.handleRACP,
       );
       this.racp = null;
+    } catch (err) {
+      debug('Could not stop RACP');
     }
-    console.log('Notifications and event listeners stopped.');
-    console.log('Disconnecting from Bluetooth Device...');
-    if (this.device.gatt.connected) {
+    debug('Disconnecting from Bluetooth Device...');
+    if (this.device && this.device.gatt && this.device.gatt.connected) {
       this.device.gatt.disconnect();
     } else {
-      console.log('Bluetooth Device is already disconnected');
+      debug('Bluetooth Device is already disconnected');
     }
   }
 
   async getDeviceInfo() {
-    console.log('Getting Device Information Characteristics...');
+    debug('Getting Device Information Characteristics...');
     const characteristics = await this.deviceInfoService.getCharacteristics();
     self.deviceInfo = {};
 
     const decoder = new TextDecoder('utf-8');
 
-    /* eslint-disable no-await-in-loop, requests to devices are sequential */
+    /* eslint-disable no-await-in-loop */
     for (let i = 0; i < characteristics.length; i += 1) {
       switch (characteristics[i].uuid) {
         case BluetoothUUID.getCharacteristic('manufacturer_name_string'):
@@ -186,7 +201,7 @@ class bluetoothLE extends EventEmitter {
 
   async sendCommand(cmd) {
     await this.racp.writeValue(new Uint8Array(cmd));
-    console.log('Sent command.');
+    debug('Sent command.');
   }
 
   async getNumberOfRecords() { await this.sendCommand([0x04, 0x01]); }
@@ -199,7 +214,7 @@ class bluetoothLE extends EventEmitter {
 
   static handleContextNotifications(event) {
     const { value } = event.target;
-    console.log('Received context:', bluetoothLE.buf2hex(value.buffer));
+    debug('Received context:', bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseMeasurementContext(value);
     self.contextRecords.push(this.parsed);
   }
@@ -207,7 +222,7 @@ class bluetoothLE extends EventEmitter {
   handleNotifications(event) {
     const { value } = event.target;
 
-    console.log('Received:', bluetoothLE.buf2hex(value.buffer));
+    debug('Received:', bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
     self.records.push(this.parsed);
   }
@@ -219,7 +234,7 @@ class bluetoothLE extends EventEmitter {
       operator: value.getUint8(1),
       operand: value.getUint16(2, true),
     };
-    console.log('RACP Event:', this.racpObject);
+    debug('RACP Event:', this.racpObject);
 
     switch (this.racpObject.opCode) {
       case 0x05:
@@ -227,7 +242,7 @@ class bluetoothLE extends EventEmitter {
         break;
       case 0x06:
         if (this.racpObject.operand === 0x0101) {
-          console.log('Success.');
+          debug('Success.');
           self.emit('data', {
             records: self.records,
             contextRecords: self.contextRecords,
@@ -312,7 +327,7 @@ class bluetoothLE extends EventEmitter {
         record.status = result.getUint16(offset + 13, true);
       }
     } else {
-      console.log('No glucose value present for ', sundial.formatDeviceTime(record.timestamp));
+      debug('No glucose value present for ', sundial.formatDeviceTime(record.timestamp));
     }
 
     record.hasContext = this.hasFlag(FLAGS.CONTEXT_INFO, record.flags);
@@ -367,7 +382,7 @@ class bluetoothLE extends EventEmitter {
 
   static buf2hex(buffer) {
     return Array.from(new Uint8Array(buffer))
-      .map(b => b.toString(16).padStart(2, '0'))
+      .map((b) => b.toString(16).padStart(2, '0'))
       .join(' ');
   }
 }
