@@ -58,7 +58,7 @@ const CONTEXT_FLAGS = {
 
 let self = null;
 
-class bluetoothLE extends EventTarget {
+export default class bluetoothLE extends EventTarget {
   constructor() {
     super();
     this.records = [];
@@ -386,5 +386,3 @@ class bluetoothLE extends EventTarget {
       .join(' ');
   }
 }
-
-module.exports = bluetoothLE;
