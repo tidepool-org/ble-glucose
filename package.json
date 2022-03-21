@@ -1,6 +1,6 @@
 {
   "name": "ble-glucose",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Reads blood glucose values from Bluetooth LE enabled meters",
   "main": "index.js",
   "scripts": {
