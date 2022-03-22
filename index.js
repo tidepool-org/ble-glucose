@@ -135,31 +135,32 @@ export default class bluetoothLE extends EventTarget {
     }
     debug('Stopping notifications and removing event listeners...');
     try {
-      await this.glucoseMeasurement.stopNotifications();
       this.glucoseMeasurement.removeEventListener(
         'characteristicvaluechanged',
         this.handleNotifications,
       );
+      await this.glucoseMeasurement.stopNotifications();
       this.glucoseMeasurement = null;
     } catch (err) {
       debug('Could not stop glucose measurement');
     }
     try {
-      await this.glucoseMeasurementContext.stopNotifications();
       this.glucoseMeasurementContext.removeEventListener(
         'characteristicvaluechanged',
         this.handleContextNotifications,
       );
+      await this.glucoseMeasurementContext.stopNotifications();
       this.glucoseMeasurementContext = null;
     } catch (err) {
       debug('Could not stop glucose measurement context');
     }
     try {
-      await this.racp.stopNotifications();
       this.racp.removeEventListener(
         'characteristicvaluechanged',
         this.handleRACP,
       );
+      debug('Removed RACP listener');
+      await this.racp.stopNotifications();
       this.racp = null;
     } catch (err) {
       debug('Could not stop RACP');
