@@ -105,7 +105,7 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
-bows@^1.7.2:
+bows@1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/bows/-/bows-1.7.2.tgz#4deb95d5b78049794cce925a869155b722d2d516"
   integrity sha512-AeIQNXbTstXOPjIBol9oTnaaO/2ByuExio0AEIx8vqOIJnAAWFfbWWzh7YPiSKYAxJNTjcy+J+xH2jCRb460Yw==
@@ -719,11 +719,6 @@ is-date-object@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/is-date-object/-/is-date-object-1.0.1.tgz#9aa20eb6aeebbff77fbd33e74ca01b33581d3a16"
   integrity sha1-mqIOtq7rv/d/vTPnTKAbM1gdOhY=
-
-is-electron@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/is-electron/-/is-electron-2.2.1.tgz#751b1dd8a74907422faa5c35aaa0cf66d98086e9"
-  integrity sha512-r8EEQQsqT+Gn0aXFx7lTFygYQhILLCB+wn0WCDL5LZRINeLH/Rvw1j2oKodELLXYNImQ3CRlVsY8wW4cGOsyuw==
 
 is-extglob@^2.1.1:
   version "2.1.1"

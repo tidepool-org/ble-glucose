@@ -19,16 +19,10 @@
 /* eslint-disable global-require, no-global-assign */
 
 import sundial from 'sundial';
-import isElectron from 'is-electron';
 import bows from 'bows';
 
 const isBrowser = typeof window !== 'undefined';
-const debug = isElectron() ? bows('ble-glucose') : console.log;
-
-if (isElectron() || !isBrowser) {
-  // For Node.js and Electron
-  EventTarget = require('events');
-}
+const debug = isBrowser ? bows('ble-glucose') : console.log;
 
 const options = {
   filters: [{
@@ -239,18 +233,24 @@ export default class bluetoothLE extends EventTarget {
 
     switch (this.racpObject.opCode) {
       case 0x05:
-        self.emit('numberOfRecords', this.racpObject.operand);
+        self.dispatchEvent(new CustomEvent('numberOfRecords', {
+          detail: this.racpObject.operand,
+        }));
         break;
       case 0x06:
         if (this.racpObject.operand === 0x0101) {
           debug('Success.');
-          self.emit('data', {
-            records: self.records,
-            contextRecords: self.contextRecords,
-          });
+          self.dispatchEvent(new CustomEvent('data', {
+            detail: {
+              records: self.records,
+              contextRecords: self.contextRecords,
+            },
+          }));
         } else if (this.racpObject.operand === 0x0601) {
           // no records found
-          self.emit('data', []);
+          self.dispatchEvent(new CustomEvent('data', {
+            detail: [],
+          }));
         }
         break;
       default:
