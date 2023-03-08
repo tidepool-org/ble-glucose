@@ -198,10 +198,10 @@ contains-path@^0.1.0:
   resolved "https://registry.yarnpkg.com/contains-path/-/contains-path-0.1.0.tgz#fe8cf184ff6670b6baef01a9d4861a5cbec4120a"
   integrity sha1-/ozxhP9mcLa67wGp1IYaXL7EEgo=
 
-core-js@2.6.10:
-  version "2.6.10"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.10.tgz#8a5b8391f8cc7013da703411ce5b585706300d7f"
-  integrity sha512-I39t74+4t+zau64EN1fE5v2W31Adtc/REhzWN+gWRRXg6WH5qAsZm62DHpQ1+Yhe4047T55jvzz7MUqF/dBBlA==
+core-js@2.6.12:
+  version "2.6.12"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
+  integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
 
 cross-spawn@^6.0.5:
   version "6.0.5"
@@ -863,17 +863,17 @@ mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
-moment-timezone@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.4.1.tgz#81f598c3ad5e22cdad796b67ecd8d88d0f5baa06"
-  integrity sha1-gfWYw61eIs2teWtn7NjYjQ9bqgY=
+moment-timezone@0.5.37:
+  version "0.5.37"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.37.tgz#adf97f719c4e458fdb12e2b4e87b8bec9f4eef1e"
+  integrity sha512-uEDzDNFhfaywRl+vwXxffjjq1q0Vzr+fcQpQ1bU0kbzorfS7zVtZnCnGc8mhWmF39d4g4YriF6kwA75mJKE/Zg==
   dependencies:
-    moment ">= 2.6.0"
+    moment ">= 2.9.0"
 
-"moment@>= 2.6.0":
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
-  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
+"moment@>= 2.9.0":
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
 ms@2.0.0:
   version "2.0.0"
@@ -1289,12 +1289,12 @@ strip-json-comments@^3.0.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.0.1.tgz#85713975a91fb87bf1b305cca77395e40d2a64a7"
   integrity sha512-VTyMAUfdm047mwKl+u79WIdrZxtFtn+nBxHeb844XBQ9uMNTuTHdx2hc5RiAJYqwTj3wc/xe5HLSdJSkJ+WfZw==
 
-sundial@1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/sundial/-/sundial-1.6.0.tgz#b3bd3f61f3eed78d42723e1e5867052d48fbd1a8"
-  integrity sha1-s70/YfPu141Ccj4eWGcFLUj70ag=
+sundial@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/sundial/-/sundial-1.7.0.tgz#1fa049341335449a8d892f687f23b25c7f373780"
+  integrity sha512-XAniZ1lSJWMtG4vcsuXVpZdMfJ1JW6KGV5uGFj5h0hpG61juM33Dy39MNV9DTSaiZ87x8j479gWj3uWsSj3V2Q==
   dependencies:
-    moment-timezone "0.4.1"
+    moment-timezone "0.5.37"
 
 supports-color@^5.3.0:
   version "5.5.0"
