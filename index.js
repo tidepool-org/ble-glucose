@@ -107,13 +107,17 @@ export default class bluetoothLE extends EventTarget {
 
       this.glucoseMeasurement = await this.glucoseService.getCharacteristic('glucose_measurement');
       await this.glucoseMeasurement.startNotifications();
-      this.glucoseMeasurementContext = await this.glucoseService.getCharacteristic('glucose_measurement_context');
-      await this.glucoseMeasurementContext.startNotifications();
+      try {
+        this.glucoseMeasurementContext = await this.glucoseService.getCharacteristic('glucose_measurement_context');
+        await this.glucoseMeasurementContext.startNotifications();
+        this.glucoseMeasurementContext.addEventListener('characteristicvaluechanged', bluetoothLE.handleContextNotifications);
+      } catch (err) {
+        console.log(err);
+      }
       this.racp = await this.glucoseService.getCharacteristic('record_access_control_point');
       await this.racp.startNotifications();
       debug('Notifications started.');
 
-      this.glucoseMeasurementContext.addEventListener('characteristicvaluechanged', bluetoothLE.handleContextNotifications);
       this.glucoseMeasurement.addEventListener('characteristicvaluechanged', this.handleNotifications);
       this.racp.addEventListener('characteristicvaluechanged', this.handleRACP);
       debug('Event listeners added.');
