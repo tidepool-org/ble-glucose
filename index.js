@@ -28,7 +28,11 @@ const options = {
   filters: [{
     services: ['glucose'],
   }],
-  optionalServices: ['device_information'],
+  optionalServices: [
+    'device_information',
+    0xFFF0, // i-SENS v1.4 custom service
+    'c4dea010-5a9d-11e9-8647-d663bd873d93', // i-SENS v1.5 custom service
+  ],
 };
 
 const FLAGS = {
