@@ -332,6 +332,12 @@ export default class bluetoothLE extends EventTarget {
       seconds: result.getUint8(9),
     };
 
+    if (dateTime.month === 13) {
+      // handle i-SENS firmware bug, where the month for base time
+      // is calculated incorrectly when they subrtract time offset
+      dateTime.month = 1;
+    }
+
     if (this.hasFlag(FLAGS.TIME_OFFSET_PRESENT, record.flags)) {
       record.payload = {
         internalTime: sundial.buildTimestamp(dateTime),
