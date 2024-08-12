@@ -116,7 +116,7 @@ export default class bluetoothLE extends EventTarget {
         await this.glucoseMeasurementContext.startNotifications();
         this.glucoseMeasurementContext.addEventListener('characteristicvaluechanged', bluetoothLE.handleContextNotifications);
       } catch (err) {
-        console.log(err);
+        debug(err);
       }
       this.racp = await this.glucoseService.getCharacteristic('record_access_control_point');
       await this.racp.startNotifications();
@@ -203,16 +203,40 @@ export default class bluetoothLE extends EventTarget {
   }
 
   async sendCommand(cmd) {
-    await this.racp.writeValue(new Uint8Array(cmd));
+    await this.racp.writeValueWithResponse(new Uint8Array(cmd));
     debug('Sent command.');
   }
 
   async getNumberOfRecords() { await this.sendCommand([0x04, 0x01]); }
+    
+  async getDeltaNumberOfRecords(seqNum) {
+    const buffer = new ArrayBuffer(5);
+    const view = new DataView(buffer);
+    
+    view.setUint8(0, 0x04); // op code: report number of stored records
+    view.setUint8(1, 0x03); // operator: greater than or equal to
+    view.setUint8(2, 0x01); // operand: filter type - sequence number
+    view.setUint16(3, seqNum, true); // operand: sequence number
+    await this.sendCommand(buffer); 
+  }
 
   async getAllRecords() {
     self.records = [];
     self.contextRecords = [];
     await this.sendCommand([0x01, 0x01]);
+  }
+
+  async getDeltaRecords(seqNum) {
+    const buffer = new ArrayBuffer(5);
+    const view = new DataView(buffer);
+    
+    view.setUint8(0, 0x01); // op code: report stored records
+    view.setUint8(1, 0x03); // operator: greater than or equal to
+    view.setUint8(2, 0x01); // operand: filter type - sequence number
+    view.setUint16(3, seqNum, true); // operand: sequence number
+    self.records = [];
+    self.contextRecords = [];
+    await this.sendCommand(buffer);
   }
 
   static handleContextNotifications(event) {
