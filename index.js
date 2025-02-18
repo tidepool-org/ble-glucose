@@ -251,7 +251,11 @@ export default class bluetoothLE extends EventTarget {
 
     debug('Received:', bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
-    self.records.push(this.parsed);
+    if (this.parsed.seqNum !== self.records[self.records.length-1]?.seqNum) {
+        self.records.push(this.parsed);
+    } else {
+        debug('Skipping double entry..');
+    }
   }
 
   handleRACP(event) {
@@ -267,7 +271,7 @@ export default class bluetoothLE extends EventTarget {
       case 0x05:
         self.dispatchEvent(new CustomEvent('numberOfRecords', {
           detail: this.racpObject.operand,
-        }));
+        })); 
         break;
       case 0x06:
         if (this.racpObject.operand === 0x0101) {
@@ -334,7 +338,7 @@ export default class bluetoothLE extends EventTarget {
 
     if (dateTime.month === 13) {
       // handle i-SENS firmware bug, where the month for base time
-      // is calculated incorrectly when they subrtract time offset
+      // is calculated incorrectly when they subtract time offset
       dateTime.month = 1;
     }
 
