@@ -342,19 +342,16 @@ export default class bluetoothLE extends EventTarget {
       dateTime.month = 1;
     }
 
+
     if (this.hasFlag(FLAGS.TIME_OFFSET_PRESENT, record.flags)) {
       record.payload = {
         internalTime: sundial.buildTimestamp(dateTime),
         timeOffset: result.getInt16(10, true),
       };
-      record.timestamp = sundial.applyOffset(
-        record.payload.internalTime,
-        record.payload.timeOffset,
-      );
       offset += 2;
-    } else {
-      record.timestamp = sundial.buildTimestamp(dateTime);
     }
+    
+    record.timestamp = sundial.buildTimestamp(dateTime);
 
     if (this.hasFlag(FLAGS.GLUCOSE_PRESENT, record.flags)) {
       if (this.hasFlag(FLAGS.IS_MMOL, record.flags)) {
