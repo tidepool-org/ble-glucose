@@ -32,6 +32,7 @@ const options = {
     'device_information',
     0xFFF0, // i-SENS v1.4 custom service
     'c4dea010-5a9d-11e9-8647-d663bd873d93', // i-SENS v1.5 custom service
+    '00001523-1212-efde-1523-785feabcd123', // Nordic LED button service
   ],
 };
 
