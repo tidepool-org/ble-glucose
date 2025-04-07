@@ -253,6 +253,9 @@ export default class bluetoothLE extends EventTarget {
     debug('Received:', bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
     if (this.parsed.seqNum !== self.records[self.records.length-1]?.seqNum) {
+        self.dispatchEvent(new CustomEvent('sequenceNumber', {
+            detail: this.parsed.seqNum,
+        }));
         self.records.push(this.parsed);
     } else {
         debug('Skipping double entry..');
