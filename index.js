@@ -32,6 +32,7 @@ const options = {
     'device_information',
     0xFFF0, // i-SENS v1.4 custom service
     'c4dea010-5a9d-11e9-8647-d663bd873d93', // i-SENS v1.5 custom service
+    '00001523-1212-efde-1523-785feabcd123', // Nordic LED button service
   ],
 };
 
@@ -251,7 +252,14 @@ export default class bluetoothLE extends EventTarget {
 
     debug('Received:', bluetoothLE.buf2hex(value.buffer));
     this.parsed = bluetoothLE.parseGlucoseMeasurement(value);
-    self.records.push(this.parsed);
+    if (this.parsed.seqNum !== self.records[self.records.length-1]?.seqNum) {
+        self.dispatchEvent(new CustomEvent('sequenceNumber', {
+            detail: this.parsed.seqNum,
+        }));
+        self.records.push(this.parsed);
+    } else {
+        debug('Skipping double entry..');
+    }
   }
 
   handleRACP(event) {
@@ -267,7 +275,7 @@ export default class bluetoothLE extends EventTarget {
       case 0x05:
         self.dispatchEvent(new CustomEvent('numberOfRecords', {
           detail: this.racpObject.operand,
-        }));
+        })); 
         break;
       case 0x06:
         if (this.racpObject.operand === 0x0101) {
@@ -334,23 +342,20 @@ export default class bluetoothLE extends EventTarget {
 
     if (dateTime.month === 13) {
       // handle i-SENS firmware bug, where the month for base time
-      // is calculated incorrectly when they subrtract time offset
+      // is calculated incorrectly when they subtract time offset
       dateTime.month = 1;
     }
+
 
     if (this.hasFlag(FLAGS.TIME_OFFSET_PRESENT, record.flags)) {
       record.payload = {
         internalTime: sundial.buildTimestamp(dateTime),
         timeOffset: result.getInt16(10, true),
       };
-      record.timestamp = sundial.applyOffset(
-        record.payload.internalTime,
-        record.payload.timeOffset,
-      );
       offset += 2;
-    } else {
-      record.timestamp = sundial.buildTimestamp(dateTime);
     }
+    
+    record.timestamp = sundial.buildTimestamp(dateTime);
 
     if (this.hasFlag(FLAGS.GLUCOSE_PRESENT, record.flags)) {
       if (this.hasFlag(FLAGS.IS_MMOL, record.flags)) {
