@@ -209,16 +209,16 @@ export default class bluetoothLE extends EventTarget {
   }
 
   async getNumberOfRecords() { await this.sendCommand([0x04, 0x01]); }
-    
+
   async getDeltaNumberOfRecords(seqNum) {
     const buffer = new ArrayBuffer(5);
     const view = new DataView(buffer);
-    
+
     view.setUint8(0, 0x04); // op code: report number of stored records
     view.setUint8(1, 0x03); // operator: greater than or equal to
     view.setUint8(2, 0x01); // operand: filter type - sequence number
     view.setUint16(3, seqNum, true); // operand: sequence number
-    await this.sendCommand(buffer); 
+    await this.sendCommand(buffer);
   }
 
   async getAllRecords() {
@@ -230,7 +230,7 @@ export default class bluetoothLE extends EventTarget {
   async getDeltaRecords(seqNum) {
     const buffer = new ArrayBuffer(5);
     const view = new DataView(buffer);
-    
+
     view.setUint8(0, 0x01); // op code: report stored records
     view.setUint8(1, 0x03); // operator: greater than or equal to
     view.setUint8(2, 0x01); // operand: filter type - sequence number
@@ -275,7 +275,7 @@ export default class bluetoothLE extends EventTarget {
       case 0x05:
         self.dispatchEvent(new CustomEvent('numberOfRecords', {
           detail: this.racpObject.operand,
-        })); 
+        }));
         break;
       case 0x06:
         if (this.racpObject.operand === 0x0101) {
@@ -354,8 +354,16 @@ export default class bluetoothLE extends EventTarget {
       };
       offset += 2;
     }
-    
-    record.timestamp = sundial.buildTimestamp(dateTime);
+
+    if ((self.device.name != 'TNG VOICE') && record.payload?.timeOffset) {
+      // TNG VOICE doesn't use time offsets correctly, so we only apply them for other meters
+      record.timestamp = sundial.applyOffset(
+        record.payload.internalTime,
+        record.payload.timeOffset,
+      );
+    } else {
+      record.timestamp = sundial.buildTimestamp(dateTime);
+    }
 
     if (this.hasFlag(FLAGS.GLUCOSE_PRESENT, record.flags)) {
       if (this.hasFlag(FLAGS.IS_MMOL, record.flags)) {
