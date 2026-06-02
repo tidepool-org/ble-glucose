@@ -1,11 +1,11 @@
 {
   "name": "ble-glucose",
-  "version": "0.10.1-upload-1499.2",
+  "version": "0.10.1",
   "description": "Reads blood glucose values from Bluetooth LE enabled meters",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --cache --format=node_modules/eslint-formatter-pretty ."
+    "lint": "oxlint"
   },
   "repository": {
     "type": "git",
@@ -24,16 +24,11 @@
   },
   "homepage": "https://github.com/tidepool-org/ble-glucose#readme",
   "devDependencies": {
-    "eslint": "8.57.0",
-    "eslint-config-airbnb": "18.2.1",
-    "eslint-formatter-pretty": "5.0.0",
-    "eslint-plugin-import": "2.29.1",
-    "eslint-plugin-promise": "6.1.1"
+    "oxlint": "1.68.0"
   },
   "dependencies": {
     "bows": "1.7.2",
-    "core-js": "3.36.1",
-    "lodash": "4.17.21",
+    "lodash": "4.18.1",
     "sundial": "1.7.6"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
